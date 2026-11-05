@@ -38,3 +38,13 @@ ADMIN_PIN=1234 node server.js
 ## Publicarlo
 
 GitHub Pages solo sirve archivos estáticos, así que no puede guardar reservas. Hace falta un servicio que ejecute Node y conserve la carpeta `data/` (un disco persistente). Cuando lo decidas, se despliega tal cual con `npm start`.
+
+## Versión sin servidor (Google Sheets)
+
+La tienda también funciona con Google Sheets como base de datos y un Google Apps Script como servidor gratuito:
+
+- `apps-script.gs`: el código que se pega en Extensiones > Apps Script de la hoja. Ejecuta `setup()` una vez y publícalo como aplicación web (acceso: Anyone). Pon antes tu PIN en `INITIAL_PIN`.
+- `config.js`: pega ahí la URL de la aplicación web en `OIKOS_API`.
+- Las pestañas `Productos`, `Stock`, `Pedidos` y `Ajustes` de la hoja son los datos reales: edita la columna `existencia` y la tienda se actualiza sola.
+- Las fotos (`p1.jpg` ...) van junto a `index.html`; la columna `imagen` de `Productos` lleva el nombre del archivo.
+- Se publica en cualquier hosting estático (Cloudflare Pages, Netlify, GitHub Pages).

@@ -353,6 +353,7 @@ td input.num{min-width:70px;width:84px;font-variant-numeric:tabular-nums}
 <div class="toast" id="toast" role="status"></div>
 <input type="file" id="imgFile" accept="image/*" hidden>
 
+<script src="config.js"></script>
 <script src="core.js"></script>
 <script>
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -369,8 +370,11 @@ function inText(ms){const m=Math.round((ms-Date.now())/60000);if(m<=0)return 've
 const HttpApi={mode:'http',tok:null,
   async call(method,path,body,admin){
     const h={'content-type':'application/json'};if(admin&&this.tok)h['x-admin-token']=this.tok;
-    const r=await fetch(path,{method,headers:h,body:body?JSON.stringify(body):undefined,cache:'no-store'});
+    const SHEET=window.OIKOS_API;
+    const r=SHEET?await fetch(SHEET,{method:'POST',headers:{'content-type':'text/plain;charset=utf-8'},body:JSON.stringify({method,path,body:body||{},token:admin?this.tok:null}),cache:'no-store',redirect:'follow'})
+      :await fetch(path,{method,headers:h,body:body?JSON.stringify(body):undefined,cache:'no-store'});
     let j=null;try{j=await r.json()}catch(e){}
+    if(SHEET){if(!j)throw new Error('net');const s=j.s;j=j.b;if(s===401&&admin){this.logout();throw {code:'auth'}}return {s,b:j}}
     if(r.status===401&&admin){this.logout();throw {code:'auth'}}
     return {s:r.status,b:j};
   },
@@ -711,8 +715,9 @@ window.addEventListener('hashchange',route);
 
 async function boot(){
   try{
-    const r=await fetch('/api/catalog',{cache:'no-store'});
-    if(r.ok&&(r.headers.get('content-type')||'').includes('json')){api=HttpApi}
+    if(window.OIKOS_API){api=HttpApi}
+    else{const r=await fetch('/api/catalog',{cache:'no-store'});
+    if(r.ok&&(r.headers.get('content-type')||'').includes('json')){api=HttpApi}}
   }catch(e){}
   if(!api){api=LocalApi;await LocalApi.init();$('#previewBanner').hidden=false}
   else{try{HttpApi.tok=sessionStorage.getItem('oikos_tok')}catch(e){}}
