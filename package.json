@@ -1,0 +1,8 @@
+{
+  "name": "oikos-tienda",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tienda OIKOS: catálogo, stock por talla, reservas y pedidos por WhatsApp.",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
+}
